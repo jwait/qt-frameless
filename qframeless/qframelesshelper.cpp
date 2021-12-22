@@ -4,6 +4,7 @@
 #include "qdebug.h"
 #include "Qshadowhelper.h"
 #include <QPainter>
+#include <QScreen>
 #ifdef Q_OS_WIN
 #include <QApplication>
 #include <windows.h>
@@ -429,9 +430,9 @@ bool QFramelessHelper::nativeEvent(const QByteArray &eventType, void *message, l
             return true;
         } */else if (msg->message == WM_NCHITTEST) {
             //计算鼠标对应的屏幕坐标
-            long x = LOWORD(msg->lParam);
-            long y = HIWORD(msg->lParam);
-            QPoint pos = m_widget->mapFromGlobal(QPoint(x, y));
+            short x = LOWORD(msg->lParam);
+            short y = HIWORD(msg->lParam);
+            QPoint pos = m_widget->mapFromGlobal(QPoint(x, y));            
             //qDebug() << "WM_NCHITTEST " << pos;
             //判断当前鼠标位置在哪个区域
             bool left = pos.x() < m_padding;
