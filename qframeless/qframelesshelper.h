@@ -39,6 +39,8 @@ private:
     bool m_moveEnable;
     bool m_resizeEnable;
     bool m_shadowBorder;
+    //通过边框进行resize
+    bool m_borderResizeEnable;
 
     //标题栏控件
     QWidget *m_titleBar;

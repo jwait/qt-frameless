@@ -21,6 +21,7 @@ QFramelessHelper::QFramelessHelper(QWidget* w, bool resizeEnable, bool shadowBor
     , m_resizeEnable(resizeEnable)
     , m_shadowBorder(shadowBorder)
     , m_winNativeEvent(winNativeEvent)
+    , m_borderResizeEnable(resizeEnable)
 {
     m_padding = 8;
     m_moveEnable = true;
@@ -148,10 +149,10 @@ void QFramelessHelper::doWindowStateChange(QEvent *event)
     //非最大化才能移动和拖动大小
     if (m_widget->windowState() == Qt::WindowNoState) {
         m_moveEnable = true;
-        m_resizeEnable = true;
+        m_borderResizeEnable = true;
     } else {
         m_moveEnable = false;
-        m_resizeEnable = false;
+        m_borderResizeEnable = false;
     }
 
     updateDrawShadowState();
@@ -210,7 +211,7 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
         //设置对应鼠标形状,这个必须放在这里而不是下面,因为可以在鼠标没有按下的时候识别
         QHoverEvent *hoverEvent = (QHoverEvent *)event;
         QPoint point = hoverEvent->pos();
-        if (m_resizeEnable) {
+        if (m_resizeEnable && m_borderResizeEnable) {
             if (m_pressedRect.at(0).contains(point)) {
                 m_widget->setCursor(Qt::SizeHorCursor);
             } else if (m_pressedRect.at(1).contains(point)) {
@@ -272,7 +273,7 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
             m_pressedArea[2] = false;
         }
 
-        if (m_resizeEnable) {
+        if (m_resizeEnable && m_borderResizeEnable) {
             int rectX = m_mouseRect.x();
             int rectY = m_mouseRect.y();
             int rectW = m_mouseRect.width();
@@ -531,6 +532,7 @@ void QFramelessHelper::setMoveEnable(bool moveEnable)
 void QFramelessHelper::setResizeEnable(bool resizeEnable)
 {
     this->m_resizeEnable = resizeEnable;
+    m_borderResizeEnable = resizeEnable;
 }
 
 void QFramelessHelper::setTitleBar(QWidget *titleBar)
