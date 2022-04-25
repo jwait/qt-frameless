@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
 
 
     //MainWindow w;
-    Widget w(true, true);
-    //Dialog w(true, true);
+    //Widget w(true, true);
+    Dialog w(true, true, false);
 
 //#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
 //    w.resize(800, 600);

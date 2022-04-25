@@ -60,7 +60,7 @@ QFramelessHelper::QFramelessHelper(QWidget* w, bool resizeEnable, bool shadowBor
 
 #ifdef Q_OS_WIN
     m_widget->setWindowFlags ((m_widget->windowFlags())
-                                            | Qt::FramelessWindowHint);
+                                            | Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
 #else
     m_widget->setWindowFlags ((m_widget->windowFlags() & (~Qt::WindowMinMaxButtonsHint) & (~Qt::Dialog))
                                             | Qt::FramelessWindowHint | Qt::Window);
