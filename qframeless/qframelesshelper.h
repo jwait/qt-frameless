@@ -47,7 +47,7 @@ private:
 
     //鼠标是否按下+按下坐标+按下时窗体区域
     bool m_mousePressed;
-    QPoint m_mousePoint;
+    QPoint m_mouseGlobalPoint;
     QRect m_mouseRect;
 
     //鼠标是否按下某个区域+按下区域的大小

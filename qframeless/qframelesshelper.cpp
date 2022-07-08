@@ -37,7 +37,7 @@ QFramelessHelper::QFramelessHelper(QWidget* w, bool resizeEnable, bool shadowBor
     m_drawShadow = 0;
 
     m_mousePressed = false;
-    m_mousePoint = QPoint(0, 0);
+    m_mouseGlobalPoint = QPoint(0, 0);
     m_mouseRect = QRect(0, 0, 0, 0);
 
     for (int i = 0; i < 8; ++i) {
@@ -238,7 +238,7 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
         QPoint point = mouseEvent->pos();
         QPoint globalPoint = mouseEvent->globalPos();
 
-        m_mousePoint = globalPoint;
+        m_mouseGlobalPoint = globalPoint;
         m_mouseRect = m_widget->frameGeometry();
 
         //判断按下的手柄的区域位置
@@ -273,16 +273,14 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
         QPoint globalPoint = mouseEvent->globalPos();
 
         //根据当前鼠标位置,计算XY轴移动了多少
-        int offsetX = globalPoint.x() - m_mousePoint.x();
-        int offsetY = globalPoint.y() - m_mousePoint.y();
-        qDebug() << "offsetX: " << offsetX;
-        qDebug() << "offsetY: " << offsetY;
+        int offsetX = globalPoint.x() - m_mouseGlobalPoint.x();
+        int offsetY = globalPoint.y() - m_mouseGlobalPoint.y();
+//        qDebug() << "offsetX: " << offsetX;
+//        qDebug() << "offsetY: " << offsetY;
 
         //根据按下处的位置判断是否是移动控件还是拉伸控件
         if (m_moveEnable && m_mousePressed) {
-//            m_widget->move(m_widget->x() + offsetX, m_widget->y() + offsetY);
             m_widget->move(m_mouseRect.left() + offsetX, m_mouseRect.top() + offsetY);
-
         }
 
         //最大化时，点击标题栏或者顶部锚点，移动鼠标，则还原窗口
@@ -294,14 +292,15 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
             int offsetY = point.y();
 #ifdef Q_OS_WIN
             switchMaximizedNormal();
+            normalRect = m_widget->frameGeometry();
 #else
             m_widget->setWindowState(Qt::WindowNoState);
             m_widget->setGeometry(normalRect);
 #endif
 
             int x1 = (int)(fx * (float)normalRect.width());
-            x1 = point.x() - x1;
-            int y1 = point.y() - offsetY;
+            x1 = globalPoint.x() - x1;
+            int y1 = 0;
             //点击顶部锚点时候，必须将y坐标向下移动一点，这样窗口还原后，鼠标不会继续触发顶部锚点
             if (m_pressedArea[2]){
                 y1 -= 8;
@@ -310,8 +309,8 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
             }
             m_widget->move(x1, y1);
             //重新计算移动起点和大小
-            m_mousePoint = m_widget->mapFromGlobal(point);
-            m_mouseRect = m_widget->geometry();
+            m_mouseGlobalPoint = globalPoint;//m_widget->mapFromGlobal(point);
+            m_mouseRect = m_widget->frameGeometry();
             m_mousePressed = true;
             m_pressedArea[2] = false;
         }
@@ -322,48 +321,80 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
             int rectW = m_mouseRect.width();
             int rectH = m_mouseRect.height();
 
+            //左侧+右侧+上侧+下侧+左上侧+右上侧+左下侧+右下侧
             if (m_pressedArea.at(0)) {
+                //左侧
                 int resizeW = rectW - offsetX;
                 if (m_widget->minimumWidth() <= resizeW) {
                     m_widget->setGeometry(rectX + offsetX, rectY, resizeW, rectH);
                 }
             } else if (m_pressedArea.at(1)) {
+                //右侧
                 m_widget->setGeometry(rectX, rectY, rectW + offsetX, rectH);
             } else if (m_pressedArea.at(2)) {
-                int resizeH = m_widget->height() - offsetY;
+                //上侧
+                int resizeH = rectH - offsetY;
                 if (m_widget->minimumHeight() <= resizeH) {
-                    m_widget->setGeometry(rectX, m_widget->y() + offsetY, rectW, resizeH);
+                    m_widget->setGeometry(rectX, rectY + offsetY, rectW, resizeH);
                 }
             } else if (m_pressedArea.at(3)) {
+                //下侧
                 m_widget->setGeometry(rectX, rectY, rectW, rectH + offsetY);
             } else if (m_pressedArea.at(4)) {
-                int resizeW = m_widget->width() - offsetX;
-                int resizeH = m_widget->height() - offsetY;
-                if (m_widget->minimumWidth() <= resizeW) {
-                    m_widget->setGeometry(m_widget->x() + offsetX, m_widget->y(), resizeW, resizeH);
+                //左上侧
+                int resizeW = rectW - offsetX;
+                int resizeH = rectH - offsetY;
+
+                if (m_widget->minimumWidth() > resizeW) {
+                    offsetX = rectW - m_widget->minimumWidth();
+                    resizeW = m_widget->minimumWidth();
                 }
-                if (m_widget->minimumHeight() <= resizeH) {
-                    m_widget->setGeometry(m_widget->x(), m_widget->y() + offsetY, resizeW, resizeH);
+                if (m_widget->minimumHeight() > resizeH) {
+                    offsetY = rectH - m_widget->minimumHeight();
+                    resizeH = m_widget->minimumHeight();
                 }
+                m_widget->setGeometry(rectX + offsetX, rectY + offsetY, resizeW, resizeH);
             } else if (m_pressedArea.at(5)) {
+                //右上侧
                 int resizeW = rectW + offsetX;
-                int resizeH = m_widget->height() - offsetY;
-                if (m_widget->minimumHeight() <= resizeH) {
-                    m_widget->setGeometry(m_widget->x(), m_widget->y() + offsetY, resizeW, resizeH);
+                int resizeH = rectH - offsetY;
+
+                if (m_widget->minimumWidth() > resizeW) {
+                    offsetX = rectW - m_widget->minimumWidth();
+                    resizeW = m_widget->minimumWidth();
                 }
+                if (m_widget->minimumHeight() > resizeH) {
+                    offsetY = rectH - m_widget->minimumHeight();
+                    resizeH = m_widget->minimumHeight();
+                }
+                m_widget->setGeometry(rectX, rectY + offsetY, resizeW, resizeH);
             } else if (m_pressedArea.at(6)) {
-                int resizeW = m_widget->width() - offsetX;
+                //左下侧
+                int resizeW = rectW - offsetX;
                 int resizeH = rectH + offsetY;
-                if (m_widget->minimumWidth() <= resizeW) {
-                    m_widget->setGeometry(m_widget->x() + offsetX, m_widget->y(), resizeW, resizeH);
+                if (m_widget->minimumWidth() > resizeW) {
+                    offsetX = rectW - m_widget->minimumWidth();
+                    resizeW = m_widget->minimumWidth();
                 }
-                if (m_widget->minimumHeight() <= resizeH) {
-                    m_widget->setGeometry(m_widget->x(), m_widget->y(), resizeW, resizeH);
+                if (m_widget->minimumHeight() > resizeH) {
+                    offsetY = rectH - m_widget->minimumHeight();
+                    resizeH = m_widget->minimumHeight();
                 }
+                m_widget->setGeometry(rectX + offsetX, rectY, resizeW, resizeH);
+
             } else if (m_pressedArea.at(7)) {
+                //右下侧
                 int resizeW = rectW + offsetX;
                 int resizeH = rectH + offsetY;
-                m_widget->setGeometry(m_widget->x(), m_widget->y(), resizeW, resizeH);
+                if (m_widget->minimumWidth() > resizeW) {
+                    offsetX = rectW - m_widget->minimumWidth();
+                    resizeW = m_widget->minimumWidth();
+                }
+                if (m_widget->minimumHeight() > resizeH) {
+                    offsetY = rectH - m_widget->minimumHeight();
+                    resizeH = m_widget->minimumHeight();
+                }
+                m_widget->setGeometry(rectX, rectY, resizeW, resizeH);
             }
         }
 
