@@ -232,14 +232,57 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
                 m_widget->setCursor(Qt::ArrowCursor);
             }
         }
+    } else if (event->type() == QEvent::MouseButtonPress) {
+        //记住鼠标按下的坐标+窗体区域
+        QMouseEvent *mouseEvent = (QMouseEvent *)event;
+        QPoint point = mouseEvent->pos();
+        QPoint globalPoint = mouseEvent->globalPos();
+
+        m_mousePoint = globalPoint;
+        m_mouseRect = m_widget->frameGeometry();
+
+        //判断按下的手柄的区域位置
+        if (m_pressedRect.at(0).contains(point)) {
+            m_pressedArea[0] = true;
+        } else if (m_pressedRect.at(1).contains(point)) {
+            m_pressedArea[1] = true;
+        } else if (m_pressedRect.at(2).contains(point)) {
+            m_pressedArea[2] = true;
+        } else if (m_pressedRect.at(3).contains(point)) {
+            m_pressedArea[3] = true;
+        } else if (m_pressedRect.at(4).contains(point)) {
+            m_pressedArea[4] = true;
+        } else if (m_pressedRect.at(5).contains(point)) {
+            m_pressedArea[5] = true;
+        } else if (m_pressedRect.at(6).contains(point)) {
+            m_pressedArea[6] = true;
+        } else if (m_pressedRect.at(7).contains(point)) {
+            m_pressedArea[7] = true;
+        } else {
+            //点击标题栏，才可以移动窗体，如果希望点击窗体即可移动，则去掉下面判断条件
+            QRect titleRect = m_titleBar->rect();
+            titleRect = QRect(m_titleBar->mapTo(m_widget, titleRect.topLeft()), titleRect.size());
+            if (titleRect.contains(point)) {
+                m_mousePressed = true;
+            }
+        }
+    } else if (event->type() == QEvent::MouseMove)
+    {
+        QMouseEvent *mouseEvent = (QMouseEvent *)event;
+        QPoint point = mouseEvent->pos();
+        QPoint globalPoint = mouseEvent->globalPos();
 
         //根据当前鼠标位置,计算XY轴移动了多少
-        int offsetX = point.x() - m_mousePoint.x();
-        int offsetY = point.y() - m_mousePoint.y();
+        int offsetX = globalPoint.x() - m_mousePoint.x();
+        int offsetY = globalPoint.y() - m_mousePoint.y();
+        qDebug() << "offsetX: " << offsetX;
+        qDebug() << "offsetY: " << offsetY;
 
         //根据按下处的位置判断是否是移动控件还是拉伸控件
         if (m_moveEnable && m_mousePressed) {
-            m_widget->move(m_widget->x() + offsetX, m_widget->y() + offsetY);
+//            m_widget->move(m_widget->x() + offsetX, m_widget->y() + offsetY);
+            m_widget->move(m_mouseRect.left() + offsetX, m_mouseRect.top() + offsetY);
+
         }
 
         //最大化时，点击标题栏或者顶部锚点，移动鼠标，则还原窗口
@@ -280,9 +323,9 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
             int rectH = m_mouseRect.height();
 
             if (m_pressedArea.at(0)) {
-                int resizeW = m_widget->width() - offsetX;
+                int resizeW = rectW - offsetX;
                 if (m_widget->minimumWidth() <= resizeW) {
-                    m_widget->setGeometry(m_widget->x() + offsetX, rectY, resizeW, rectH);
+                    m_widget->setGeometry(rectX + offsetX, rectY, resizeW, rectH);
                 }
             } else if (m_pressedArea.at(1)) {
                 m_widget->setGeometry(rectX, rectY, rectW + offsetX, rectH);
@@ -323,39 +366,7 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
                 m_widget->setGeometry(m_widget->x(), m_widget->y(), resizeW, resizeH);
             }
         }
-    } else if (event->type() == QEvent::MouseButtonPress) {
-        //记住鼠标按下的坐标+窗体区域
-        QMouseEvent *mouseEvent = (QMouseEvent *)event;
-        m_mousePoint = mouseEvent->pos();
-        m_mouseRect = m_widget->geometry();
 
-        //判断按下的手柄的区域位置
-        if (m_pressedRect.at(0).contains(m_mousePoint)) {
-            m_pressedArea[0] = true;
-        } else if (m_pressedRect.at(1).contains(m_mousePoint)) {
-            m_pressedArea[1] = true;
-        } else if (m_pressedRect.at(2).contains(m_mousePoint)) {
-            m_pressedArea[2] = true;
-        } else if (m_pressedRect.at(3).contains(m_mousePoint)) {
-            m_pressedArea[3] = true;
-        } else if (m_pressedRect.at(4).contains(m_mousePoint)) {
-            m_pressedArea[4] = true;
-        } else if (m_pressedRect.at(5).contains(m_mousePoint)) {
-            m_pressedArea[5] = true;
-        } else if (m_pressedRect.at(6).contains(m_mousePoint)) {
-            m_pressedArea[6] = true;
-        } else if (m_pressedRect.at(7).contains(m_mousePoint)) {
-            m_pressedArea[7] = true;
-        } else {
-            //点击标题栏，才可以移动窗体，如果希望点击窗体即可移动，则去掉下面判断条件
-            QRect titleRect = m_titleBar->rect();
-            titleRect = QRect(m_titleBar->mapTo(m_widget, titleRect.topLeft()), titleRect.size());
-            if (titleRect.contains(m_mousePoint)) {
-                m_mousePressed = true;
-            }
-        }
-    } else if (event->type() == QEvent::MouseMove) {
-        //改成用HoverMove识别
     } else if (event->type() == QEvent::MouseButtonRelease) {
         //恢复所有
         m_widget->setCursor(Qt::ArrowCursor);
