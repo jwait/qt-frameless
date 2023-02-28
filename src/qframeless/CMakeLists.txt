@@ -5,20 +5,17 @@ set(PROJECT_NAME qframeless)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-add_library(${PROJECT_NAME} SHARED)
-target_compile_definitions(${PROJECT_NAME} PRIVATE QFRAMELESS_EXPORT)
-
 set(header_path 
-      ${CMAKE_CURRENT_SOURCE_DIR}/include
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/qframeless
 )
 
 set(headers 
     ${header_path}/gframeless_global.h
     ${header_path}/qframelessdialog.h
     ${header_path}/qframelesshelper.h
-	  ${header_path}/qframelessmainwindow.h
-	  ${header_path}/qframelesswidget.h
-	  ${header_path}/qshadowhelper.h
+    ${header_path}/qframelessmainwindow.h
+    ${header_path}/qframelesswidget.h
+    ${header_path}/qshadowhelper.h
 )
 
 set(sources
@@ -29,6 +26,9 @@ set(sources
       ./src/qshadowhelper.cpp
 )
 
+add_library(${PROJECT_NAME} SHARED ${headers})
+target_compile_definitions(${PROJECT_NAME} PRIVATE QFRAMELESS_EXPORT)
+
 target_sources(${PROJECT_NAME}
     PRIVATE
     ${sources}
@@ -38,8 +38,8 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}>
+  PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>
 )
