@@ -2,12 +2,12 @@
 
 #include "qframelesshelper.h"
 
-QFramelessWidget::QFramelessWidget(QWidget *parent, bool resizeEnable, bool shadowBorder,
-                                   bool winNativeEvent)
-    : QWidget(parent), m_frameless_helper(0)
+QFramelessWidget::QFramelessWidget(QWidget *parent, bool resize_enable, bool shadow_border,
+                                   bool win_native_event)
+    : QWidget(parent)
 {
     m_frameless_helper =
-        new QFramelessHelper(this, resizeEnable, shadowBorder, winNativeEvent, this);
+        new QFramelessHelper(this, resize_enable, shadow_border, win_native_event, this);
 }
 
 QFramelessHelper *QFramelessWidget::framelessHelper() { return m_frameless_helper; }

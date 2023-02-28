@@ -10,8 +10,8 @@ class QFRAMELESS_EXPORT QFramelessWidget : public QWidget
 {
     Q_OBJECT
    public:
-    explicit QFramelessWidget(QWidget *parent = 0, bool resizeEnable = false,
-                              bool shadowBorder = true, bool winNativeEvent = true);
+    explicit QFramelessWidget(QWidget *parent = nullptr, bool resize_enable = true,
+                              bool shadow_border = true, bool win_native_event = true);
 
     QFramelessHelper *framelessHelper();
 

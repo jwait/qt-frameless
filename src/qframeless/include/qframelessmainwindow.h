@@ -4,14 +4,15 @@
 #include <QMainWindow>
 
 #include "gframeless_global.h"
+#include "qframelesswidget.h"
 
 class QFramelessHelper;
 class QFRAMELESS_EXPORT QFramelessMainWindow : public QMainWindow
 {
     Q_OBJECT
    public:
-    explicit QFramelessMainWindow(QWidget *parent = 0, bool resizeEnable = true,
-                                  bool shadowBorder = true, bool winNativeEvent = true);
+    explicit QFramelessMainWindow(QWidget *parent = nullptr, bool resize_enable = true,
+                                  bool shadow_border = true, bool win_native_event = true);
 
     QFramelessHelper *framelessHelper();
 

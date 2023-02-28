@@ -14,6 +14,22 @@ class QFRAMELESS_EXPORT QFramelessHelper : public QObject
     explicit QFramelessHelper(QWidget *w, bool resizeEnable, bool shadowBorder = true,
                               bool winNativeEvent = true, QObject *parent = 0);
 
+    //设置边距+可拖动+可拉伸
+    void setPadding(int padding);
+    void setMoveEnable(bool moveEnable);
+    void setResizeEnable(bool resizeEnable);
+
+    //设置标题栏窗体
+    void setTitleBar(QWidget *titleBar);
+
+    bool isMaximized();
+
+   public slots:
+    void showMinimized();
+    void showMaximized();
+    void showNormal();
+    void switchMaximizedNormal();
+
    protected:
     //窗体显示的时候触发
     void doShowEvent(QEvent *event);
@@ -36,57 +52,42 @@ class QFRAMELESS_EXPORT QFramelessHelper : public QObject
 
     void paintEvent(QPaintEvent *e);
 
+   signals:
+    void maximizedChanged(bool max);
+
    private:
-    QWidget *m_widget;
+    QWidget *m_widget = nullptr;
     //边距+可移动+可拉伸+阴影边框
-    int m_padding;
-    bool m_moveEnable;
-    bool m_resizeEnable;
-    bool m_shadowBorder;
+    int m_padding = 8;
+    bool m_move_enable = true;
+    bool m_resize_enable;
+    bool m_shadow_border;
     //通过边框进行resize
     bool m_borderResizeEnable;
 
     //标题栏控件
-    QWidget *m_titleBar;
+    QWidget *m_title_bar = nullptr;
 
     //鼠标是否按下+按下坐标+按下时窗体区域
-    bool m_mousePressed;
-    QPoint m_mouseGlobalPoint;
-    QRect m_mouseRect;
+    bool m_mouse_pressed = false;
+    QPoint m_mouse_global_point{0, 0};
+    QRect m_mouse_rect{0, 0, 0, 0};
 
     //鼠标是否按下某个区域+按下区域的大小
     //依次为 左侧+右侧+上侧+下侧+左上侧+右上侧+左下侧+右下侧
-    QList<bool> m_pressedArea;
-    QList<QRect> m_pressedRect;
+    QList<bool> m_pressed_area;
+    QList<QRect> m_pressed_rect;
 
     //记录是否最小化
-    bool m_isMin;
+    bool m_is_min = false;
     //存储窗体默认的属性
     Qt::WindowFlags m_flags;
 
     // windows是否采用NativeEvent进行Resize、阴影边框，linux下该值为false
-    bool m_winNativeEvent;
+    bool m_win_native_event = false;
 
     //自绘制阴影边框
-    QDrawShadowHelper *m_drawShadow;
-
-   public:
-    //设置边距+可拖动+可拉伸
-    void setPadding(int padding);
-    void setMoveEnable(bool moveEnable);
-    void setResizeEnable(bool resizeEnable);
-
-    //设置标题栏窗体
-    void setTitleBar(QWidget *titleBar);
-
-    bool isMaximized();
-   public slots:
-    void showMinimized();
-    void showMaximized();
-    void showNormal();
-    void switchMaximizedNormal();
-   signals:
-    void maximizedChanged(bool max);
+    QDrawShadowHelper *m_draw_shadow = nullptr;
 };
 
 #endif  // QFRAMELESSHELPER_H

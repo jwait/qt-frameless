@@ -7,59 +7,57 @@
 
 #include "qframelesshelper.h"
 
-QDrawShadowHelper::QDrawShadowHelper(QWidget* w, int shadowSize, QObject* parent)
+QDrawShadowHelper::QDrawShadowHelper(QWidget* w, int shadow_size, QObject* parent)
     : QObject(parent),
-      m_shadowSize(shadowSize),
-      m_clientBorderColor(QColor("#C9C9C9")),
-      m_widget(w),
-      m_show(true)
+      m_shadow_size(shadow_size),
+      m_client_border_color(QColor(Qt::black)),
+      m_widget(w)
 {
     m_widget->setAttribute(Qt::WA_TranslucentBackground);
-    // m_widget->setWindowFlags(m_widget->windowFlags() | Qt::FramelessWindowHint);
-    m_clientBgColor = m_widget->palette().color(QPalette::Window);
-    setShadowSize(m_shadowSize);
+    m_client_bg_color = m_widget->palette().color(QPalette::Window);
+    setShadowSize(m_shadow_size);
 }
 
 QDrawShadowHelper::~QDrawShadowHelper() {}
 
-void QDrawShadowHelper::setShadowSize(int shadowSize)
+void QDrawShadowHelper::setShadowSize(int shadow_size)
 {
-    m_shadowSize = shadowSize;
+    m_shadow_size = shadow_size;
     if (!m_img.isNull())
     {
         m_img = QImage();
     }
-    m_img = makeShadowImage(m_shadowSize, true);
-    int nImageWidth = m_img.width();
-    int nImageHeight = m_img.height();
-    splitRect(QRect(0, 0, nImageWidth, nImageHeight), shadowSize, m_arrayImageGrid, 9);
+    m_img = makeShadowImage(m_shadow_size, true);
+    int width = m_img.width();
+    int height = m_img.height();
+    splitRect(QRect(0, 0, width, height), shadow_size, m_array_image_grid, 9);
 }
 
-inline unsigned char MakeAlpha(int i, double f, int nSize)
+inline unsigned char makeAlpha(int i, double f, int nSize)
 {
     if (i == nSize) f *= 1.2;
     double f2 = 1 - cos((double)i / nSize * 3.14 / 2);
     return int(fabs((i * f) * f2));
 }
 
-QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
+QImage QDrawShadowHelper::makeShadowImage(int shadow_size, bool activated)
 {
-    int size = shadowSize * 2 + 10;
+    int size = shadow_size * 2 + 10;
     QImage image(size, size, QImage::Format_ARGB32);
     image.fill(QColor(Qt::black));
 
     //
     double f = activated ? 4.0 : 1.0;
     //
-    QSize szImage = image.size();
+    QSize image_size = image.size();
     //
     // left
-    for (int y = shadowSize; y < szImage.height() - shadowSize; y++)
+    for (int y = shadow_size; y < image_size.height() - shadow_size; y++)
     {
-        for (int x = 0; x < shadowSize; x++)
+        for (int x = 0; x < shadow_size; x++)
         {
             int i = x + 1;
-            int alpha = MakeAlpha(i, f, shadowSize);
+            int alpha = makeAlpha(i, f, shadow_size);
 
 #if (QT_VERSION <= QT_VERSION_CHECK(5, 6, 0))
             image.setPixel(x, y, QColor(0, 0, 0, alpha).rgba());
@@ -69,12 +67,12 @@ QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
         }
     }
     // right
-    for (int y = shadowSize; y < szImage.height() - shadowSize; y++)
+    for (int y = shadow_size; y < image_size.height() - shadow_size; y++)
     {
-        for (int x = szImage.width() - shadowSize - 1; x < szImage.width(); x++)
+        for (int x = image_size.width() - shadow_size - 1; x < image_size.width(); x++)
         {
-            int i = szImage.width() - x;
-            int alpha = MakeAlpha(i, f, shadowSize);
+            int i = image_size.width() - x;
+            int alpha = makeAlpha(i, f, shadow_size);
 #if (QT_VERSION <= QT_VERSION_CHECK(5, 6, 0))
             image.setPixel(x, y, QColor(0, 0, 0, alpha).rgba());
 #else
@@ -83,12 +81,12 @@ QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
         }
     }
     // top
-    for (int y = 0; y < shadowSize; y++)
+    for (int y = 0; y < shadow_size; y++)
     {
         int i = y + 1;
-        for (int x = shadowSize; x < szImage.width() - shadowSize; x++)
+        for (int x = shadow_size; x < image_size.width() - shadow_size; x++)
         {
-            int alpha = MakeAlpha(i, f, shadowSize);
+            int alpha = makeAlpha(i, f, shadow_size);
 #if (QT_VERSION <= QT_VERSION_CHECK(5, 6, 0))
             image.setPixel(x, y, QColor(0, 0, 0, alpha).rgba());
 #else
@@ -98,12 +96,12 @@ QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
         //
     }
     // bottom
-    for (int y = szImage.height() - shadowSize - 1; y < szImage.height(); y++)
+    for (int y = image_size.height() - shadow_size - 1; y < image_size.height(); y++)
     {
-        int i = szImage.height() - y;
-        for (int x = shadowSize; x < szImage.width() - shadowSize; x++)
+        int i = image_size.height() - y;
+        for (int x = shadow_size; x < image_size.width() - shadow_size; x++)
         {
-            int alpha = MakeAlpha(i, f, shadowSize);
+            int alpha = makeAlpha(i, f, shadow_size);
 #if (QT_VERSION <= QT_VERSION_CHECK(5, 6, 0))
             image.setPixel(x, y, QColor(0, 0, 0, alpha).rgba());
 #else
@@ -115,18 +113,18 @@ QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
     //
     int parentRoundSize = 0;
     //
-    for (int x = 0; x < shadowSize + parentRoundSize; x++)
+    for (int x = 0; x < shadow_size + parentRoundSize; x++)
     {
-        for (int y = 0; y < shadowSize + parentRoundSize; y++)
+        for (int y = 0; y < shadow_size + parentRoundSize; y++)
         {
-            int xx = (shadowSize + parentRoundSize) - x;
-            int yy = (shadowSize + parentRoundSize) - y;
+            int xx = (shadow_size + parentRoundSize) - x;
+            int yy = (shadow_size + parentRoundSize) - y;
             int i = int(sqrt(double(xx * xx + yy * yy)));
-            i = std::min<int>(shadowSize + parentRoundSize, i);
+            i = std::min<int>(shadow_size + parentRoundSize, i);
             i -= parentRoundSize;
-            i = shadowSize - i;
+            i = shadow_size - i;
             //
-            int alpha = MakeAlpha(i, f, shadowSize);
+            int alpha = makeAlpha(i, f, shadow_size);
 #if (QT_VERSION <= QT_VERSION_CHECK(5, 6, 0))
             image.setPixel(x, y, QColor(0, 0, 0, alpha).rgba());
 #else
@@ -136,18 +134,18 @@ QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
     }
 
     //
-    for (int x = szImage.width() - shadowSize - parentRoundSize; x < szImage.width(); x++)
+    for (int x = image_size.width() - shadow_size - parentRoundSize; x < image_size.width(); x++)
     {
-        for (int y = 0; y < shadowSize + parentRoundSize; y++)
+        for (int y = 0; y < shadow_size + parentRoundSize; y++)
         {
-            int xx = (shadowSize + parentRoundSize) - (szImage.width() - x);
-            int yy = (shadowSize + parentRoundSize) - y;
+            int xx = (shadow_size + parentRoundSize) - (image_size.width() - x);
+            int yy = (shadow_size + parentRoundSize) - y;
             int i = int(sqrt(double(xx * xx + yy * yy)));
-            i = std::min<int>(shadowSize + parentRoundSize, i);
+            i = std::min<int>(shadow_size + parentRoundSize, i);
             i -= parentRoundSize;
-            i = shadowSize - i;
+            i = shadow_size - i;
             //
-            int alpha = MakeAlpha(i, f, shadowSize);
+            int alpha = makeAlpha(i, f, shadow_size);
 #if (QT_VERSION <= QT_VERSION_CHECK(5, 6, 0))
             image.setPixel(x, y, QColor(0, 0, 0, alpha).rgba());
 #else
@@ -156,18 +154,19 @@ QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
         }
     }
     //
-    for (int x = 0; x < shadowSize + parentRoundSize; x++)
+    for (int x = 0; x < shadow_size + parentRoundSize; x++)
     {
-        for (int y = szImage.height() - shadowSize - parentRoundSize; y < szImage.height(); y++)
+        for (int y = image_size.height() - shadow_size - parentRoundSize; y < image_size.height();
+             y++)
         {
-            int xx = (shadowSize + parentRoundSize) - x;
-            int yy = (shadowSize + parentRoundSize) - (szImage.height() - y);
+            int xx = (shadow_size + parentRoundSize) - x;
+            int yy = (shadow_size + parentRoundSize) - (image_size.height() - y);
             int i = int(sqrt(double(xx * xx + yy * yy)));
-            i = std::min<int>(shadowSize + parentRoundSize, i);
+            i = std::min<int>(shadow_size + parentRoundSize, i);
             i -= parentRoundSize;
-            i = shadowSize - i;
+            i = shadow_size - i;
             //
-            int alpha = MakeAlpha(i, f, shadowSize);
+            int alpha = makeAlpha(i, f, shadow_size);
 #if (QT_VERSION <= QT_VERSION_CHECK(5, 6, 0))
             image.setPixel(x, y, QColor(0, 0, 0, alpha).rgba());
 #else
@@ -176,18 +175,19 @@ QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
         }
     }
     //
-    for (int x = szImage.width() - shadowSize - parentRoundSize; x < szImage.width(); x++)
+    for (int x = image_size.width() - shadow_size - parentRoundSize; x < image_size.width(); x++)
     {
-        for (int y = szImage.height() - shadowSize - parentRoundSize; y < szImage.height(); y++)
+        for (int y = image_size.height() - shadow_size - parentRoundSize; y < image_size.height();
+             y++)
         {
-            int xx = (shadowSize + parentRoundSize) - (szImage.width() - x);
-            int yy = (shadowSize + parentRoundSize) - (szImage.height() - y);
+            int xx = (shadow_size + parentRoundSize) - (image_size.width() - x);
+            int yy = (shadow_size + parentRoundSize) - (image_size.height() - y);
             int i = int(sqrt(double(xx * xx + yy * yy)));
-            i = std::min<int>(shadowSize + parentRoundSize, i);
+            i = std::min<int>(shadow_size + parentRoundSize, i);
             i -= parentRoundSize;
-            i = shadowSize - i;
+            i = shadow_size - i;
             //
-            int alpha = MakeAlpha(i, f, shadowSize);
+            int alpha = makeAlpha(i, f, shadow_size);
 #if (QT_VERSION <= QT_VERSION_CHECK(5, 6, 0))
             image.setPixel(x, y, QColor(0, 0, 0, alpha).rgba());
 #else
@@ -198,55 +198,46 @@ QImage QDrawShadowHelper::makeShadowImage(int shadowSize, bool activated)
     return image;
 }
 
-bool QDrawShadowHelper::splitRect(const QRect& rcSrc, int shadowSize, QRect* parrayRect,
-                                  int nArrayCount)
+bool QDrawShadowHelper::splitRect(const QRect& src_rect, int shadow_size, QRect* parray_rect,
+                                  int array_count)
 {
-    Q_ASSERT(nArrayCount == 9);
+    Q_ASSERT(array_count == 9);
     //
-    QRect* arrayRect = parrayRect;
+    QRect* arrayRect = parray_rect;
     //
-    int nWidth = rcSrc.width();
-    int nHeight = rcSrc.height();
-    //
-    //    if (ptTopLeft.x() <= 0)
-    //        return false;
-    //    if (ptTopLeft.y() <= 0)
-    //        return false;
-    //    if (ptTopLeft.x() >= nWidth / 2)
-    //        return false;
-    //    if (ptTopLeft.y() >= nHeight / 2)
-    //        return false;
-    //
-    int x1 = rcSrc.left() + 0;
-    int x2 = rcSrc.left() + shadowSize;
-    int x3 = rcSrc.left() + nWidth - shadowSize;
-    //
-    int y1 = rcSrc.top() + 0;
-    int y2 = rcSrc.top() + shadowSize;
-    int y3 = rcSrc.top() + nHeight - shadowSize;
-    //
-    arrayRect[0] = QRect(x1, y1, shadowSize, shadowSize);
-    arrayRect[1] = QRect(x2, y1, nWidth - shadowSize * 2, shadowSize);
-    arrayRect[2] = QRect(x3, y1, shadowSize, shadowSize);
+    int width = src_rect.width();
+    int height = src_rect.height();
 
-    arrayRect[3] = QRect(x1, y2, shadowSize, nHeight - shadowSize * 2);
-    arrayRect[4] = QRect(x2, y2, nWidth - shadowSize * 2, nHeight - shadowSize * 2);
-    arrayRect[5] = QRect(x3, y2, shadowSize, nHeight - shadowSize * 2);
+    int x1 = src_rect.left() + 0;
+    int x2 = src_rect.left() + shadow_size;
+    int x3 = src_rect.left() + width - shadow_size;
+    //
+    int y1 = src_rect.top() + 0;
+    int y2 = src_rect.top() + shadow_size;
+    int y3 = src_rect.top() + height - shadow_size;
+    //
+    arrayRect[0] = QRect(x1, y1, shadow_size, shadow_size);
+    arrayRect[1] = QRect(x2, y1, width - shadow_size * 2, shadow_size);
+    arrayRect[2] = QRect(x3, y1, shadow_size, shadow_size);
 
-    arrayRect[6] = QRect(x1, y3, shadowSize, shadowSize);
-    arrayRect[7] = QRect(x2, y3, nWidth - shadowSize * 2, shadowSize);
-    arrayRect[8] = QRect(x3, y3, shadowSize, shadowSize);
+    arrayRect[3] = QRect(x1, y2, shadow_size, height - shadow_size * 2);
+    arrayRect[4] = QRect(x2, y2, width - shadow_size * 2, height - shadow_size * 2);
+    arrayRect[5] = QRect(x3, y2, shadow_size, height - shadow_size * 2);
+
+    arrayRect[6] = QRect(x1, y3, shadow_size, shadow_size);
+    arrayRect[7] = QRect(x2, y3, width - shadow_size * 2, shadow_size);
+    arrayRect[8] = QRect(x3, y3, shadow_size, shadow_size);
     //
     return true;
 }
 
-QColor QDrawShadowHelper::getClientBorderColor() const { return m_clientBorderColor; }
+QColor QDrawShadowHelper::getClientBorderColor() const { return m_client_border_color; }
 
 void QDrawShadowHelper::setClientBorderColor(const QColor& color)
 {
-    if (m_clientBorderColor != color)
+    if (m_client_border_color != color)
     {
-        m_clientBorderColor = color;
+        m_client_border_color = color;
         if (m_widget) m_widget->update();
     }
 }
@@ -254,46 +245,27 @@ void QDrawShadowHelper::setClientBorderColor(const QColor& color)
 void QDrawShadowHelper::paint(QPainter* p)
 {
     p->save();
-    if (m_shadowSize > 0 && m_show)
+    if (m_shadow_size > 0 && m_show)
     {
-        QRect arrayDest[9];
-        splitRect(m_widget->rect(), m_shadowSize, arrayDest, 9);
+        QRect array_dest[9];
+        splitRect(m_widget->rect(), m_shadow_size, array_dest, 9);
         for (int i = 0; i < 9; i++)
         {
-            if (i == 4)
-            {
-                //                p->setBrush(m_clientBgColor);
-                //                if (m_clientBorderColor.isValid())
-                //                {
-                //                    QRect rc1 = arrayDest[i].marginsRemoved(QMargins(0, 0, 1, 1));
-                //                    p->setPen(QPen(m_clientBorderColor, 1));
-                //                    p->drawRect(rc1);
-                //                }
-                //                else
-                //                {
-                //                    QRect rc1 = arrayDest[i].marginsRemoved(QMargins(0, 0, 1, 1));
-                //                    p->setPen(QPen(QColor("#3A3A4A")));
-                //                    p->drawRect(rc1);
-                //                }
-            }
-            else
-            {
-                const QRect& rcSrc = m_arrayImageGrid[i];
-                const QRect& rcDest = arrayDest[i];
-                p->drawImage(rcDest, m_img, rcSrc);
-            }
+            const QRect& src_rect = m_array_image_grid[i];
+            const QRect& dst_rect = array_dest[i];
+            p->drawImage(dst_rect, m_img, src_rect);
         }
     }
     else
     {
-        p->setBrush(m_clientBgColor);
+        p->setBrush(m_client_bg_color);
         p->setPen(Qt::NoPen);
         p->drawRect(m_widget->rect());
     }
     p->restore();
 }
 
-int QDrawShadowHelper::shadowSize() { return m_shadowSize; }
+int QDrawShadowHelper::shadowSize() { return m_shadow_size; }
 
 void QDrawShadowHelper::hide()
 {
@@ -324,5 +296,5 @@ void QDrawShadowHelper::show()
     {
         lay = m_widget->layout();
     }
-    if (lay) lay->setContentsMargins(m_shadowSize, m_shadowSize, m_shadowSize, m_shadowSize);
+    if (lay) lay->setContentsMargins(m_shadow_size, m_shadow_size, m_shadow_size, m_shadow_size);
 }
