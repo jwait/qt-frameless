@@ -2,34 +2,40 @@
 #define QSHADOWHELPER_H
 
 #include <QWidget>
+
+#include "gframeless_global.h"
+
 class QPainter;
 
-class QDrawShadowHelper : public QObject
+class QFRAMELESS_EXPORT QDrawShadowHelper : public QObject
 {
     Q_OBJECT
 
-    //Q_PROPERTY(QColor clientBgColor READ getClientBgColor WRITE setClientBgColor)
+    // Q_PROPERTY(QColor clientBgColor READ getClientBgColor WRITE setClientBgColor)
 
-public:
-    explicit QDrawShadowHelper(QWidget* w, int shadowSize = 10, QObject *parent = 0);
+   public:
+    explicit QDrawShadowHelper(QWidget *w, int shadowSize = 10, QObject *parent = 0);
     ~QDrawShadowHelper();
-    void setShadowSize(int shadowSize);
-    void paint(QPainter* p);
-    int shadowSize();
 
-//    QColor getClientBgColor() const;
-//    void setClientBgColor(const QColor &value);
+    void setShadowSize(int shadowSize);
+    int shadowSize();
+    void paint(QPainter *p);
+
+    //    QColor getClientBgColor() const;
+    //    void setClientBgColor(const QColor &value);
 
     QColor getClientBorderColor() const;
     void setClientBorderColor(const QColor &value);
 
-public slots:
+   public slots:
     void hide();
     void show();
-protected:
+
+   protected:
     QImage makeShadowImage(int shadowSize, bool activated);
     bool splitRect(const QRect &rcSrc, int shadowSize, QRect *parrayRect, int nArrayCount);
-private:
+
+   private:
     int m_shadowSize;
     QImage m_img;
     QRect m_arrayImageGrid[9];
@@ -39,4 +45,4 @@ private:
     bool m_show;
 };
 
-#endif // QSHADOWHELPER_H
+#endif  // QSHADOWHELPER_H

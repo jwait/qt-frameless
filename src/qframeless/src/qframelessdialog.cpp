@@ -1,22 +1,24 @@
 ﻿#include "qframelessdialog.h"
 
+#include "qframelesshelper.h"
+
 QFramelessDialog::QFramelessDialog(QWidget *parent, bool resizeEnable, bool shadowBorder, bool winNativeEvent)
     : QDialog(parent)
-    , m_framelessHelper(0)
+    , m_frameless_helper(0)
 {
-    m_framelessHelper = new QFramelessHelper(this, resizeEnable, shadowBorder, winNativeEvent, this);
+    m_frameless_helper = new QFramelessHelper(this, resizeEnable, shadowBorder, winNativeEvent, this);
 }
 
 QFramelessHelper *QFramelessDialog::framelessHelper()
 {
-    return m_framelessHelper;
+    return m_frameless_helper;
 }
 
 void QFramelessDialog::paintEvent(QPaintEvent *e)
 {
-    if (m_framelessHelper == 0)
+    if (m_frameless_helper == 0)
         return;
-    m_framelessHelper->paintEvent(e);
+    m_frameless_helper->paintEvent(e);
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
@@ -25,9 +27,9 @@ bool QFramelessDialog::nativeEvent(const QByteArray &eventType, void *message, q
 bool QFramelessDialog::nativeEvent(const QByteArray &eventType, void *message, long *result)
 #endif
 {
-    if (m_framelessHelper == 0)
+    if (m_frameless_helper == 0)
         return false;
-    return m_framelessHelper->nativeEvent(eventType, message, result);
+    return m_frameless_helper->nativeEvent(eventType, message, result);
 }
 
 #if (QT_VERSION < QT_VERSION_CHECK(5,0,0))

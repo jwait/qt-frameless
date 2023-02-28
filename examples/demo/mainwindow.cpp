@@ -1,5 +1,6 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "qframelesshelper.h"
 #include "head.h"
 #include "dialog.h"
 #include "widget.h"

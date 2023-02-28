@@ -1,15 +1,13 @@
 ﻿#include "widget.h"
-#include "ui_widget.h"
-#include "head.h"
-#include "dialog.h"
-#include "mainwindow.h"
 
-Widget::Widget(bool resizeEnable,
-               bool shadowBorder,
-               bool winNativeEvent,
-               QWidget *parent)
-    : QFramelessWidget(parent, resizeEnable, shadowBorder, winNativeEvent)
-    , ui(new Ui::Widget)
+#include "dialog.h"
+#include "head.h"
+#include "mainwindow.h"
+#include "qframelesshelper.h"
+#include "ui_widget.h"
+
+Widget::Widget(bool resizeEnable, bool shadowBorder, bool winNativeEvent, QWidget *parent)
+    : QFramelessWidget(parent, resizeEnable, shadowBorder, winNativeEvent), ui(new Ui::Widget)
 {
     ui->setupUi(this);
     if (resizeEnable == false)
@@ -20,10 +18,7 @@ Widget::Widget(bool resizeEnable,
     this->initForm();
 }
 
-Widget::~Widget()
-{
-    delete ui;
-}
+Widget::~Widget() { delete ui; }
 
 void Widget::initForm()
 {
@@ -37,29 +32,23 @@ void Widget::initForm()
 
 void Widget::maximizedChanged(bool max)
 {
-    if (!max) {
+    if (!max)
+    {
         ui->btnMenu_Max->setProperty("type", "maxsize");
-    } else {
+    }
+    else
+    {
         ui->btnMenu_Max->setProperty("type", "restore");
     }
     ui->btnMenu_Max->style()->unpolish(ui->btnMenu_Max);
     ui->btnMenu_Max->style()->polish(ui->btnMenu_Max);
 }
 
-void Widget::on_btnMenu_Min_clicked()
-{
-    framelessHelper()->showMinimized();
-}
+void Widget::on_btnMenu_Min_clicked() { framelessHelper()->showMinimized(); }
 
-void Widget::on_btnMenu_Max_clicked()
-{
-    framelessHelper()->switchMaximizedNormal();
-}
+void Widget::on_btnMenu_Max_clicked() { framelessHelper()->switchMaximizedNormal(); }
 
-void Widget::on_btnMenu_Close_clicked()
-{
-    this->close();
-}
+void Widget::on_btnMenu_Close_clicked() { this->close(); }
 
 void Widget::on_pushButton_QDialog_clicked()
 {
@@ -78,7 +67,7 @@ void Widget::on_pushButton_QWidget_clicked()
     bool winNativeEvent = ui->checkBox_winNativeEvent->isChecked();
 
     Widget *w = new Widget(resizeEnable, shadowBorder, winNativeEvent);
-    //w->setWindowModality(Qt::ApplicationModal);
+    // w->setWindowModality(Qt::ApplicationModal);
     w->show();
 }
 

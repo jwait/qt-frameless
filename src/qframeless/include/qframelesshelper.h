@@ -4,14 +4,17 @@
 #include <QObject>
 #include <QWidget>
 
+#include "gframeless_global.h"
+
 class QDrawShadowHelper;
-class QFramelessHelper : public QObject
+class QFRAMELESS_EXPORT QFramelessHelper : public QObject
 {
     Q_OBJECT
-public:
-    explicit QFramelessHelper(QWidget* w, bool resizeEnable, bool shadowBorder = true, bool winNativeEvent = true, QObject *parent = 0);
+   public:
+    explicit QFramelessHelper(QWidget *w, bool resizeEnable, bool shadowBorder = true,
+                              bool winNativeEvent = true, QObject *parent = 0);
 
-protected:
+   protected:
     //窗体显示的时候触发
     void doShowEvent(QEvent *event);
 
@@ -22,9 +25,10 @@ protected:
 
     //更新自绘阴影边框显示状态
     void updateDrawShadowState();
-public:
+
+   public:
     //拦截系统事件用于修复系统休眠后唤醒程序的BUG
-#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result);
 #else
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
@@ -32,7 +36,7 @@ public:
 
     void paintEvent(QPaintEvent *e);
 
-private:
+   private:
     QWidget *m_widget;
     //边距+可移动+可拉伸+阴影边框
     int m_padding;
@@ -60,13 +64,13 @@ private:
     //存储窗体默认的属性
     Qt::WindowFlags m_flags;
 
-    //windows是否采用NativeEvent进行Resize、阴影边框，linux下该值为false
+    // windows是否采用NativeEvent进行Resize、阴影边框，linux下该值为false
     bool m_winNativeEvent;
 
     //自绘制阴影边框
-    QDrawShadowHelper* m_drawShadow;
+    QDrawShadowHelper *m_drawShadow;
 
-public:
+   public:
     //设置边距+可拖动+可拉伸
     void setPadding(int padding);
     void setMoveEnable(bool moveEnable);
@@ -76,13 +80,13 @@ public:
     void setTitleBar(QWidget *titleBar);
 
     bool isMaximized();
-public slots:
+   public slots:
     void showMinimized();
     void showMaximized();
     void showNormal();
     void switchMaximizedNormal();
-signals:
+   signals:
     void maximizedChanged(bool max);
 };
 
-#endif // QFRAMELESSHELPER_H
+#endif  // QFRAMELESSHELPER_H

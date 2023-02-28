@@ -1,0 +1,65 @@
+find_package(Qt5 COMPONENTS Core Widgets Gui)
+
+set(PROJECT_NAME qframeless)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+add_library(${PROJECT_NAME} SHARED)
+target_compile_definitions(${PROJECT_NAME} PRIVATE QFRAMELESS_EXPORT)
+
+set(header_path 
+      ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+set(headers 
+    ${header_path}/gframeless_global.h
+    ${header_path}/qframelessdialog.h
+    ${header_path}/qframelesshelper.h
+	  ${header_path}/qframelessmainwindow.h
+	  ${header_path}/qframelesswidget.h
+	  ${header_path}/qshadowhelper.h
+)
+
+set(sources
+      ./src/qframelessdialog.cpp
+      ./src/qframelesshelper.cpp
+      ./src/qframelessmainwindow.cpp
+      ./src/qframelesswidget.cpp
+      ./src/qshadowhelper.cpp
+)
+
+target_sources(${PROJECT_NAME}
+    PRIVATE
+    ${sources}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+    Qt5::Core
+    Qt5::Widgets
+    Qt5::Gui
+  PRIVATE
+)
+
+# #####
+# Moc
+# #
+qt5_wrap_cpp(frameless_moc
+    ${headers}
+    TARGET ${PROJECT_NAME}
+    OPTIONS --no-notes # Don't display a note for the headers which don't produce a moc_*.cpp
+)
+
+target_sources(${PROJECT_NAME} PRIVATE ${frameless_moc})
+
