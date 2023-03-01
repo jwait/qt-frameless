@@ -53,7 +53,7 @@ class QFRAMELESS_EXPORT QFramelessHelper : public QObject
     void paintEvent(QPaintEvent *e);
 
    signals:
-    void maximizedChanged(bool max);
+    void signalMaximizedChanged(bool max);
 
    private:
     QWidget *m_widget = nullptr;

@@ -27,10 +27,11 @@ void Widget::initForm()
     this->framelessHelper()->setTitleBar(ui->widget_titleBar);
 
     //关联信号
-    connect(framelessHelper(), SIGNAL(maximizedChanged(bool)), this, SLOT(maximizedChanged(bool)));
+    connect(framelessHelper(), SIGNAL(signalMaximizedChanged(bool)), this,
+            SLOT(slotMaximizedChanged(bool)));
 }
 
-void Widget::maximizedChanged(bool max)
+void Widget::slotMaximizedChanged(bool max)
 {
     if (!max)
     {

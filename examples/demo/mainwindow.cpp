@@ -1,16 +1,14 @@
 ﻿#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "qframelesshelper.h"
-#include "head.h"
+
 #include "dialog.h"
+#include "head.h"
+#include "qframelesshelper.h"
+#include "ui_mainwindow.h"
 #include "widget.h"
 
-MainWindow::MainWindow(bool resizeEnable,
-                       bool shadowBorder,
-                       bool winNativeEvent,
-                       QWidget *parent)
-    : QFramelessMainWindow(parent, resizeEnable, shadowBorder, winNativeEvent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(bool resizeEnable, bool shadowBorder, bool winNativeEvent, QWidget *parent)
+    : QFramelessMainWindow(parent, resizeEnable, shadowBorder, winNativeEvent),
+      ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     if (resizeEnable == false)
@@ -21,10 +19,7 @@ MainWindow::MainWindow(bool resizeEnable,
     this->initForm();
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::initForm()
 {
@@ -33,34 +28,29 @@ void MainWindow::initForm()
     this->framelessHelper()->setTitleBar(ui->widget_titleBar);
 
     //关联信号
-    connect(framelessHelper(), SIGNAL(maximizedChanged(bool)), this, SLOT(maximizedChanged(bool)));
+    connect(framelessHelper(), SIGNAL(signalMaximizedChanged(bool)), this,
+            SLOT(slotMaximizedChanged(bool)));
 }
 
-void MainWindow::maximizedChanged(bool max)
+void MainWindow::slotMaximizedChanged(bool max)
 {
-    if (!max) {
+    if (!max)
+    {
         ui->btnMenu_Max->setProperty("type", "maxsize");
-    } else {
+    }
+    else
+    {
         ui->btnMenu_Max->setProperty("type", "restore");
     }
     ui->btnMenu_Max->style()->unpolish(ui->btnMenu_Max);
     ui->btnMenu_Max->style()->polish(ui->btnMenu_Max);
 }
 
-void MainWindow::on_btnMenu_Min_clicked()
-{
-    framelessHelper()->showMinimized();
-}
+void MainWindow::on_btnMenu_Min_clicked() { framelessHelper()->showMinimized(); }
 
-void MainWindow::on_btnMenu_Max_clicked()
-{
-    framelessHelper()->switchMaximizedNormal();
-}
+void MainWindow::on_btnMenu_Max_clicked() { framelessHelper()->switchMaximizedNormal(); }
 
-void MainWindow::on_btnMenu_Close_clicked()
-{
-    this->close();
-}
+void MainWindow::on_btnMenu_Close_clicked() { this->close(); }
 
 void MainWindow::on_pushButton_QDialog_clicked()
 {
@@ -79,7 +69,7 @@ void MainWindow::on_pushButton_QWidget_clicked()
     bool winNativeEvent = ui->checkBox_winNativeEvent->isChecked();
 
     Widget *w = new Widget(resizeEnable, shadowBorder, winNativeEvent);
-    //w->setWindowModality(Qt::ApplicationModal);
+    // w->setWindowModality(Qt::ApplicationModal);
     w->show();
 }
 

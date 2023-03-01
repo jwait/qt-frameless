@@ -3,7 +3,8 @@
 
 #include "qframelesswidget.h"
 
-namespace Ui {
+namespace Ui
+{
 class Widget;
 }
 
@@ -11,20 +12,18 @@ class Widget : public QFramelessWidget
 {
     Q_OBJECT
 
-public:
-    explicit Widget(bool resizeEnable = true,
-                    bool shadowBorder = true,
-                    bool winNativeEvent = true,
+   public:
+    explicit Widget(bool resizeEnable = true, bool shadowBorder = true, bool winNativeEvent = true,
                     QWidget *parent = 0);
     ~Widget();
 
-private:
+   private:
     Ui::Widget *ui;
     void initForm();
-private slots:
-    void maximizedChanged(bool max);
+   private slots:
+    void slotMaximizedChanged(bool max);
 
-private slots:
+   private slots:
     void on_btnMenu_Min_clicked();
     void on_btnMenu_Max_clicked();
     void on_btnMenu_Close_clicked();
@@ -33,4 +32,4 @@ private slots:
     void on_pushButton_QMainWindow_clicked();
 };
 
-#endif // WIDGET_H
+#endif  // WIDGET_H

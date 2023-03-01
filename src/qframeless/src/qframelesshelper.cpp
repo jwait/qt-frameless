@@ -161,7 +161,7 @@ void QFramelessHelper::doWindowStateChange(QEvent *event)
     updateDrawShadowState();
 
     //发出最大化最小化等改变事件,以便界面上更改对应的信息比如右上角图标和文字
-    emit maximizedChanged(!m_move_enable);
+    emit signalMaximizedChanged(!m_move_enable);
 
     //解决mac系统上无边框最小化失效的BUG
 #ifdef Q_OS_MACOS
@@ -489,12 +489,12 @@ void QFramelessHelper::switchMaximizedNormal()
     if (isMaximized())
     {
         showNormal();
-        emit maximizedChanged(false);
+        emit signalMaximizedChanged(false);
     }
     else
     {
         showMaximized();
-        emit maximizedChanged(true);
+        emit signalMaximizedChanged(true);
     }
 }
 

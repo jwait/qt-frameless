@@ -28,10 +28,11 @@ void Dialog::initForm()
     this->framelessHelper()->setTitleBar(ui->widget_titleBar);
 
     //关联信号
-    connect(framelessHelper(), SIGNAL(maximizedChanged(bool)), this, SLOT(maximizedChanged(bool)));
+    connect(framelessHelper(), SIGNAL(signalMaximizedChanged(bool)), this,
+            SLOT(slotMaximizedChanged(bool)));
 }
 
-void Dialog::maximizedChanged(bool max)
+void Dialog::slotMaximizedChanged(bool max)
 {
     if (!max)
     {

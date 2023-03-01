@@ -89,6 +89,13 @@
              </property>
             </widget>
            </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>支持win、linux、mac，支持阴影边框、边缘分屏</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="1">
             <widget class="QLabel" name="label_title">
              <property name="sizePolicy">
@@ -98,14 +105,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>QDialog无边框窗体示例 (WX: 18971631501)</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>支持win、linux、mac，支持阴影边框、边缘分屏</string>
+              <string>QDialog无边框窗体示例</string>
              </property>
             </widget>
            </item>
