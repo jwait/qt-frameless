@@ -27,7 +27,10 @@ set(sources
 )
 
 add_library(${PROJECT_NAME} SHARED ${headers})
-target_compile_definitions(${PROJECT_NAME} PRIVATE QFRAMELESS_EXPORT)
+target_compile_definitions(${PROJECT_NAME} 
+  PRIVATE 
+    QFRAMELESS_EXPORT
+)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
@@ -62,4 +65,37 @@ qt5_wrap_cpp(frameless_moc
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${frameless_moc})
+
+###############
+# Installation
+##
+
+include(GNUInstallDirs)
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Targets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/$<CONFIG>
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/$<CONFIG>
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/$<CONFIG>
+        )
+
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(EXPORT ${PROJECT_NAME}Targets
+  FILE ${PROJECT_NAME}Targets.cmake
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake
+)
 

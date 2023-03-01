@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_package(Qt5 COMPONENTS Core Widgets Gui)
+
+include("${CMAKE_CURRENT_LIST_DIR}/qframelessTargets.cmake")
+
+check_required_components(qframeless)
