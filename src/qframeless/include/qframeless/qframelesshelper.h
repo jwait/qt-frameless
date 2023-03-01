@@ -1,7 +1,6 @@
 ﻿#ifndef QFRAMELESSHELPER_H
 #define QFRAMELESSHELPER_H
 
-#include <QObject>
 #include <QWidget>
 
 #include "gframeless_global.h"
@@ -11,13 +10,13 @@ class QFRAMELESS_EXPORT QFramelessHelper : public QObject
 {
     Q_OBJECT
    public:
-    explicit QFramelessHelper(QWidget *w, bool resizeEnable, bool shadowBorder = true,
-                              bool winNativeEvent = true, QObject *parent = 0);
+    explicit QFramelessHelper(QWidget *w, bool resize_enable = true, bool shadow_border = true,
+                              bool win_native_event = true, QObject *parent = nullptr);
 
     //设置边距+可拖动+可拉伸
     void setPadding(int padding);
-    void setMoveEnable(bool moveEnable);
-    void setResizeEnable(bool resizeEnable);
+    void setMoveEnable(bool move_enable);
+    void setResizeEnable(bool resize_enable);
 
     //设置标题栏窗体
     void setTitleBar(QWidget *titleBar);
@@ -31,13 +30,13 @@ class QFRAMELESS_EXPORT QFramelessHelper : public QObject
     void switchMaximizedNormal();
 
    protected:
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
     //窗体显示的时候触发
     void doShowEvent(QEvent *event);
 
     //事件过滤器识别拖动拉伸等
     void doWindowStateChange(QEvent *event);
     void doResizeEvent(QEvent *event);
-    bool eventFilter(QObject *watched, QEvent *event);
 
     //更新自绘阴影边框显示状态
     void updateDrawShadowState();
@@ -63,7 +62,7 @@ class QFRAMELESS_EXPORT QFramelessHelper : public QObject
     bool m_resize_enable;
     bool m_shadow_border;
     //通过边框进行resize
-    bool m_borderResizeEnable;
+    bool m_border_resize_enable;
 
     //标题栏控件
     QWidget *m_title_bar = nullptr;

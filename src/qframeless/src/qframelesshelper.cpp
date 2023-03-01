@@ -20,14 +20,14 @@
 
 #define TIMEMS qPrintable(QTime::currentTime().toString("HH:mm:ss zzz"))
 
-QFramelessHelper::QFramelessHelper(QWidget *w, bool resizeEnable, bool shadowBorder,
-                                   bool winNativeEvent, QObject *parent)
+QFramelessHelper::QFramelessHelper(QWidget *w, bool resize_enable, bool shadow_border,
+                                   bool win_native_event, QObject *parent)
     : QObject(parent),
       m_widget(w),
-      m_resize_enable(resizeEnable),
-      m_shadow_border(shadowBorder),
-      m_win_native_event(winNativeEvent),
-      m_borderResizeEnable(resizeEnable)
+      m_resize_enable(resize_enable),
+      m_shadow_border(shadow_border),
+      m_win_native_event(win_native_event),
+      m_border_resize_enable(resize_enable)
 {
 #ifdef Q_OS_WIN
     if (m_win_native_event)
@@ -69,7 +69,7 @@ QFramelessHelper::QFramelessHelper(QWidget *w, bool resizeEnable, bool shadowBor
         m_widget->setAttribute(Qt::WA_DontCreateNativeAncestors);
         HWND hwnd = (HWND)m_widget->winId();
         DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
-        if (resizeEnable)
+        if (resize_enable)
         {
             ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
         }
@@ -150,12 +150,12 @@ void QFramelessHelper::doWindowStateChange(QEvent *event)
     if (m_widget->windowState() == Qt::WindowNoState)
     {
         m_move_enable = true;
-        m_borderResizeEnable = true;
+        m_border_resize_enable = true;
     }
     else
     {
         m_move_enable = false;
-        m_borderResizeEnable = false;
+        m_border_resize_enable = false;
     }
 
     updateDrawShadowState();
@@ -220,7 +220,7 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
         //设置对应鼠标形状,这个必须放在这里而不是下面,因为可以在鼠标没有按下的时候识别
         QHoverEvent *hoverEvent = (QHoverEvent *)event;
         QPoint point = hoverEvent->pos();
-        if (m_resize_enable && m_borderResizeEnable)
+        if (m_resize_enable && m_border_resize_enable)
         {
             if (m_pressed_rect.at(0).contains(point))
             {
@@ -306,9 +306,10 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
         else
         {
             //点击标题栏，才可以移动窗体，如果希望点击窗体即可移动，则去掉下面判断条件
-            QRect titleRect = m_title_bar->rect();
-            titleRect = QRect(m_title_bar->mapTo(m_widget, titleRect.topLeft()), titleRect.size());
-            if (titleRect.contains(point))
+            QRect title_rect = m_title_bar->rect();
+            title_rect =
+                QRect(m_title_bar->mapTo(m_widget, title_rect.topLeft()), title_rect.size());
+            if (title_rect.contains(point))
             {
                 m_mouse_pressed = true;
             }
@@ -318,13 +319,11 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
     {
         QMouseEvent *mouseEvent = (QMouseEvent *)event;
         QPoint point = mouseEvent->pos();
-        QPoint globalPoint = mouseEvent->globalPos();
+        QPoint global_point = mouseEvent->globalPos();
 
         //根据当前鼠标位置,计算XY轴移动了多少
-        int offsetX = globalPoint.x() - m_mouse_global_point.x();
-        int offsetY = globalPoint.y() - m_mouse_global_point.y();
-        //        qDebug() << "offsetX: " << offsetX;
-        //        qDebug() << "offsetY: " << offsetY;
+        int offsetX = global_point.x() - m_mouse_global_point.x();
+        int offsetY = global_point.y() - m_mouse_global_point.y();
 
         //根据按下处的位置判断是否是移动控件还是拉伸控件
         if (m_move_enable && m_mouse_pressed)
@@ -348,7 +347,7 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
 #endif
 
             int x1 = (int)(fx * (float)normalRect.width());
-            x1 = globalPoint.x() - x1;
+            x1 = global_point.x() - x1;
             int y1 = 0;
             //点击顶部锚点时候，必须将y坐标向下移动一点，这样窗口还原后，鼠标不会继续触发顶部锚点
             if (m_pressed_area[2])
@@ -358,13 +357,13 @@ void QFramelessHelper::doResizeEvent(QEvent *event)
             }
             m_widget->move(x1, y1);
             //重新计算移动起点和大小
-            m_mouse_global_point = globalPoint;  // m_widget->mapFromGlobal(point);
+            m_mouse_global_point = global_point;  // m_widget->mapFromGlobal(point);
             m_mouse_rect = m_widget->frameGeometry();
             m_mouse_pressed = true;
             m_pressed_area[2] = false;
         }
 
-        if (m_resize_enable && m_borderResizeEnable)
+        if (m_resize_enable && m_border_resize_enable)
         {
             int rectX = m_mouse_rect.x();
             int rectY = m_mouse_rect.y();
@@ -626,13 +625,13 @@ bool QFramelessHelper::nativeEvent(const QByteArray &eventType, void *message, l
             //识别标题栏拖动产生半屏全屏效果
             if (m_title_bar != 0 && m_title_bar->rect().contains(pos))
             {
-                QPoint titleBarTopLeft = m_title_bar->mapTo(m_widget, QPoint(0, 0));
-                QRect rcTitleBar =
-                    QRect(titleBarTopLeft, QSize(m_title_bar->width(), m_title_bar->height()));
-                if (rcTitleBar.contains(pos))
+                QPoint title_bar_top_left = m_title_bar->mapTo(m_widget, QPoint(0, 0));
+                QRect title_bar_rect =
+                    QRect(title_bar_top_left, QSize(m_title_bar->width(), m_title_bar->height()));
+                if (title_bar_rect.contains(pos))
                 {
-                    QPoint posInTitleBar = m_title_bar->mapFrom(m_widget, pos);
-                    QWidget *child = m_title_bar->childAt(posInTitleBar);
+                    QPoint pos_in_title_bar = m_title_bar->mapFrom(m_widget, pos);
+                    QWidget *child = m_title_bar->childAt(pos_in_title_bar);
                     if (child == 0 || !child->inherits("QAbstractButton"))
                     {
                         *result = HTCAPTION;
@@ -670,7 +669,7 @@ bool QFramelessHelper::nativeEvent(const QByteArray &eventType, void *message, l
         else if (msg->wParam == PBT_APMRESUMEAUTOMATIC)
         {
             //休眠唤醒后自动打开
-            // this->showNormal();
+            // showNormal();
         }
 #endif
     }
@@ -687,20 +686,20 @@ bool QFramelessHelper::nativeEvent(const QByteArray &eventType, void *message, l
     return false;
 }
 
-void QFramelessHelper::setPadding(int padding) { this->m_padding = padding; }
+void QFramelessHelper::setPadding(int padding) { m_padding = padding; }
 
-void QFramelessHelper::setMoveEnable(bool moveEnable) { this->m_move_enable = moveEnable; }
+void QFramelessHelper::setMoveEnable(bool move_enable) { m_move_enable = move_enable; }
 
-void QFramelessHelper::setResizeEnable(bool resizeEnable)
+void QFramelessHelper::setResizeEnable(bool resize_enable)
 {
-    this->m_resize_enable = resizeEnable;
-    m_borderResizeEnable = resizeEnable;
+    m_resize_enable = resize_enable;
+    m_border_resize_enable = resize_enable;
 }
 
 void QFramelessHelper::setTitleBar(QWidget *titleBar)
 {
-    this->m_title_bar = titleBar;
-    this->m_title_bar->installEventFilter(this);
+    m_title_bar = titleBar;
+    m_title_bar->installEventFilter(this);
 }
 
 void QFramelessHelper::showMinimized()
